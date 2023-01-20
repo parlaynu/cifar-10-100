@@ -1,8 +1,47 @@
 # CIFAR 10/100 Experiments
 
-A simple setup for experimenting with the CIFAR 10/100 datasets.
+A simple setup using [pytorch](https://pytorch.org/) to experiment with the CIFAR 10/100 datasets.
 
 * https://www.cs.toronto.edu/~kriz/cifar.html
+
+
+## Quick Start
+
+Download the datesets and expand:
+
+    mkdir -p ~/Projects/datasets
+    cd ~/Projects/datasets
+
+    wget https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+    tar xzf cifar-10-python.tar.gz
+    mv cifar-10-batches-py cifar-10
+
+    wget https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz
+    tar xzf cifar-100-python.tar.gz
+    mv cifar-100-python cifar-100
+
+Clone this repository:
+
+    cd ~/Projects
+    git clone https://github.com/parlaynu/cifar-10-100
+    cd cifar-10-100
+
+Create python virtual environment and install required packages:
+
+    python3 -m venv pyenv
+    source pyenv/bin/activate
+
+    pip install -r requirements.txt
+
+You can now run some tools:
+
+    ./find-lr.py -w 2 -e 4 -b 64 -f 0.01 mobilenet_v3_large ~/Projects/datasets/cifar-100-python
+    ./train.py -w 2 -e 75 -b 64 --lr 0.0001 mobilenet_v3_large ~/Projects/datasets/cifar-100-python
+
+To view the logs:
+
+    tensorboard --bind_all --logdir snapshots
+
 
 ## Tools
 
@@ -38,8 +77,8 @@ The tool for training is `train.py`.
                             gradient value clipping
       --gmn GMN, --grad-max-norm GMN
                             gradient norm clipping
-      --lr LR               learning rate optimizer
-      --wd WD               weight decay for optimizer
+      --lr LR               learning rate for the optimizer
+      --wd WD               weight decay for the optimizer
       --grad-stats          collect and report gradient stats
 
 The model types supported can be seen in the file `lib/models/utils.py`.
@@ -118,4 +157,13 @@ data in the data training pipeline.
 
 The results from this have been incorporated into the dataset classes for each dataset and are automatically
 used by the trainer.
+
+
+## Logging
+
+Logging of results is done using tensorboard. Typical usage is like this:
+
+    tensorboard --bind_all --logdir snapshots
+
+The `snapshots` directory will be created in the directory where you run the tools.
 
