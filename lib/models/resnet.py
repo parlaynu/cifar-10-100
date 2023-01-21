@@ -13,6 +13,7 @@ def _tweak_resnet(model, num_classes, use_gpu, freeze):
         newfc = nn.Linear(fc.in_features, num_classes)
         model.fc = newfc
     
+    # freeze layers
     for child in islice(model.children(), freeze):
         for idx, p in enumerate(child.parameters()):
             p.requires_grad = False

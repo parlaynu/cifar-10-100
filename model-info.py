@@ -9,7 +9,7 @@ def main():
     
     args = parser.parse_args()
     
-    model = models.create_model(args.model, 10, use_gpu=False, pretrained=False, freeze=5)
+    model = models.create_model(args.model, 10, use_gpu=False, pretrained=False, freeze=0)
     print(model)
 
 

@@ -42,7 +42,7 @@ def build_vdate_pipeline(args, model, log_writer):
     pipe = head = cl.dataset(args.dsroot, split="val", batch_size=args.batch_size)
     mean, std = head.data_norm()
 
-    pipe = cl.augmenter(pipe, mode="val", mean=mean, std=std, size=arg.size)
+    pipe = cl.augmenter(pipe, mode="val", mean=mean, std=std, size=args.image_size)
     pipe = cl.dataloader(pipe, num_workers=args.num_workers, batch_size=args.batch_size, drop_last=False)
     pipe = cl.validator(pipe, model)
     pipe = cl.assessor(pipe)
