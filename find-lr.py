@@ -87,7 +87,11 @@ def build_pipeline(args):
         
     model = models.create_model(args.model, head.num_classes(), use_gpu=args.use_gpu, pretrained=True)
     
-    pipe = cl.trainer(pipe, model, lr=args.initial_lr, label_smoothing=0.1)
+    pipe = cl.trainer(pipe, model, label_smoothing=0.1, 
+                        lr=args.initial_lr, weight_decay=0.01, 
+                        grad_clip_value=None, 
+                        grad_max_norm=None
+                        )
     
     optimizer = pipe._optimizer
     num_steps = len(pipe) * args.num_epochs
@@ -95,7 +99,7 @@ def build_pipeline(args):
     pipe = FindLrExp(pipe, optimizer, args.initial_lr, args.final_lr, num_steps)
     
     log_writer = cl.log_writer(args.log_dir)
-    pipe = cl.logger(pipe, writer=log_writer, prefix="FindLR", keys=["loss", "lr"], batch_mode=True)
+    pipe = cl.logger(pipe, writer=log_writer, prefix="FindLR", keys=[], batch_keys=["loss", "lr"], )
     
     return pipe, head, model, log_writer
 
