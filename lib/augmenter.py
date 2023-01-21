@@ -3,7 +3,7 @@ import torchvision.transforms as TF
 
 
 class Augmenter:
-    def __init__(self, pipe, mode, mean, std):
+    def __init__(self, pipe, mode, mean, std, size):
         self._pipe = pipe
 
         valid_modes = ["train", "val"]
@@ -13,6 +13,7 @@ class Augmenter:
         if mode == "val":
             self._transforms = TF.Compose([
                 TF.ToTensor(),
+                TF.Resize(size),
                 TF.Normalize(mean, std),
             ])
         elif mode == "train":
@@ -20,6 +21,7 @@ class Augmenter:
                 TF.ToTensor(),
                 TF.RandomHorizontalFlip(p=0.5),
                 TF.RandomGrayscale(p=0.1),
+                TF.Resize(size),
                 TF.Normalize(mean, std),
                 TF.RandomErasing(p=0.5)
             ])
@@ -33,7 +35,7 @@ class Augmenter:
             yield item
 
 
-def augmenter(pipe, *, mode, mean, std):
-    pipe = Augmenter(pipe, mode, mean, std)
+def augmenter(pipe, *, mode, mean, std, size):
+    pipe = Augmenter(pipe, mode, mean, std, size)
     return pipe
 

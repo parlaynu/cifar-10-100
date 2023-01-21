@@ -11,10 +11,10 @@ def build_train_pipeline(args):
     if args.mx > 0.0:
         pipe = cl.mixup(pipe, num_classes=head.num_classes(), ratio=0.5, p=args.mx)
     
-    pipe = cl.augmenter(pipe, mode="train", mean=mean, std=std)
+    pipe = cl.augmenter(pipe, mode="train", mean=mean, std=std, size=args.image_size)
     pipe = cl.dataloader(pipe, num_workers=args.num_workers, batch_size=args.batch_size, drop_last=True)
     
-    model = models.create_model(args.model, head.num_classes(), use_gpu=args.use_gpu, pretrained=True)
+    model = models.create_model(args.model, head.num_classes(), use_gpu=args.use_gpu, pretrained=True, freeze=args.freeze)
     
     pipe = cl.trainer(pipe, model, label_smoothing=args.ls, 
                 lr=args.lr, weight_decay=args.wd,
@@ -42,7 +42,7 @@ def build_vdate_pipeline(args, model, log_writer):
     pipe = head = cl.dataset(args.dsroot, split="val", batch_size=args.batch_size)
     mean, std = head.data_norm()
 
-    pipe = cl.augmenter(pipe, mode="val", mean=mean, std=std)
+    pipe = cl.augmenter(pipe, mode="val", mean=mean, std=std, size=arg.size)
     pipe = cl.dataloader(pipe, num_workers=args.num_workers, batch_size=args.batch_size, drop_last=False)
     pipe = cl.validator(pipe, model)
     pipe = cl.assessor(pipe)
@@ -100,6 +100,8 @@ def main():
     parser.add_argument('-w', '--num-workers', help='number of workers to use', type=int, default=-1)
     parser.add_argument('-e', '--num-epochs', help='number of epochs', type=int, default=1)
     parser.add_argument('-b', '--batch-size', help='batch size', type=int, default=8)
+    parser.add_argument('-s', '--image-size', help='resize the images before processing', type=int, default=32)
+    parser.add_argument('-z', '--freeze', help='number of layers in the model to freeze', type=int, default=0)
     parser.add_argument('--mx', help='mixup augmentation probability', type=float, default=0.0)
     parser.add_argument('--ls', help='label smoothing for loss function', type=float, default=0.1)
     parser.add_argument('--gcv', '--grad-clip-value', help='gradient value clipping', type=float, default=None)

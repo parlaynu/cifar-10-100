@@ -15,8 +15,8 @@ models = {
     "resnet152": resnet152
 }
 
-def create_model(name, num_classes, *, use_gpu, pretrained):
-    return models[name](num_classes, use_gpu=use_gpu, pretrained=pretrained)
+def create_model(name, num_classes, *, use_gpu, pretrained, freeze):
+    return models[name](num_classes, use_gpu=use_gpu, pretrained=pretrained, freeze=freeze)
 
 
 def load_model(state_file, *, use_gpu):

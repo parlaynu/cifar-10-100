@@ -82,10 +82,10 @@ def build_pipeline(args):
     pipe = head = cl.dataset(args.dsroot, split="train", batch_size=args.batch_size)
     mean, std = head.data_norm()
 
-    pipe = cl.augmenter(pipe, mode="train", mean=mean, std=std)
+    pipe = cl.augmenter(pipe, mode="train", mean=mean, std=std, size=args.size)
     pipe = cl.dataloader(pipe, num_workers=args.num_workers, batch_size=args.batch_size, drop_last=True)
         
-    model = models.create_model(args.model, head.num_classes(), use_gpu=args.use_gpu, pretrained=True)
+    model = models.create_model(args.model, head.num_classes(), use_gpu=args.use_gpu, pretrained=True, freeze=args.freeze)
     
     pipe = cl.trainer(pipe, model, label_smoothing=0.1, 
                         lr=args.initial_lr, weight_decay=0.01, 
@@ -134,6 +134,8 @@ def main():
     parser.add_argument('-w', '--num-workers', help='number of workers to use', type=int, default=-1)
     parser.add_argument('-e', '--num-epochs', help='number of epochs', type=int, default=1)
     parser.add_argument('-b', '--batch-size', help='batch size', type=int, default=16)
+    parser.add_argument('-s', '--image-size', help='resize the images before processing', type=int, default=32)
+    parser.add_argument('-z', '--freeze', help='number of layers in the model to freeze', type=int, default=0)
     parser.add_argument("-i", "--initial-lr", help="initial learning rate", type=float, default=0.0000001)
     parser.add_argument("-f", "--final-lr", help="final learning rate", type=float, default=0.01)
     parser.add_argument('model', help='the model type to use', type=str)

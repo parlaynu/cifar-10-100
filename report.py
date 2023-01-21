@@ -8,10 +8,10 @@ def build_pipeline(args):
     pipe = head = cl.dataset(args.dsroot, split="val", batch_size=args.batch_size)
     mean, std = head.data_norm()
 
-    pipe = cl.augmenter(pipe, mode="val", mean=mean, std=std)
+    pipe = cl.augmenter(pipe, mode="val", mean=mean, std=std, size=args.size)
     pipe = cl.dataloader(pipe, num_workers=args.num_workers, batch_size=args.batch_size, drop_last=False)
     
-    model, epoch = models.load_model(args.state_file, use_gpu=args.use_gpu)
+    model, epoch = models.load_model(args.state_file, use_gpu=args.use_gpu, pretrained=False, freeze=0)
     
     pipe = cl.validator(pipe, model)
     pipe = cl.assessor(pipe)
@@ -76,6 +76,7 @@ def main():
     parser.add_argument('-c', '--use-cpu', help='use the CPU even if there is a GPU', action='store_true')
     parser.add_argument('-w', '--num-workers', help='number of workers to use', type=int, default=-1)
     parser.add_argument('-b', '--batch-size', help='batch size', type=int, default=8)
+    parser.add_argument('-s', '--image-size', help='resize the images before processing', type=int, default=32)
     parser.add_argument('state_file', help='the model state to load', type=str)
     parser.add_argument('dsroot', help='path to the cifar-10 or cifar-100 dataset', type=str)
     
