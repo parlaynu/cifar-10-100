@@ -93,13 +93,14 @@ def build_pipeline(args):
                         grad_max_norm=None
                         )
     
-    pipe = cl.averager(pipe, keymap={"loss": "loss"})
     
     optimizer = pipe._optimizer
     num_steps = len(pipe) * args.num_epochs
     
     pipe = FindLrExp(pipe, optimizer, args.initial_lr, args.final_lr, num_steps)
     
+    pipe = cl.averager(pipe, keymap={"loss": "loss"})
+
     log_writer = cl.log_writer(args.log_dir)
     pipe = cl.logger(pipe, writer=log_writer, prefix="FindLR", keys=[], batch_keys=["loss", "lr"], )
     
