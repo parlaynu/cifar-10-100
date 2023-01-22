@@ -1,0 +1,1 @@
+./cifar-10/find-lr.py -w 2 -e 2 -b 64 -s 224 -z 0 -f 0.0005 resnet50 ~/Projects/datasets/cifar-10
