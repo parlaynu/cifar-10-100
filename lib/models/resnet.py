@@ -15,7 +15,7 @@ def _tweak_resnet(model, num_classes, use_gpu, freeze):
     
     # freeze layers
     for child in islice(model.children(), freeze):
-        for idx, p in enumerate(child.parameters()):
+        for p in child.parameters():
             p.requires_grad = False
 
     # move the model to the device

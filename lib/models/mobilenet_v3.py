@@ -16,7 +16,7 @@ def _tweak_mobilenet(model, num_classes, use_gpu, freeze):
     
     # freeze any layers
     for child in islice(model.features.children(), freeze):
-        for idx, p in enumerate(child.parameters()):
+        for p in child.parameters():
             p.requires_grad = False
 
     # move the model to the device
