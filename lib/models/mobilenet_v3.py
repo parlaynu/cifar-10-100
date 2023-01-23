@@ -5,7 +5,7 @@ import torch.nn as nn
 import torchvision.models
 
 
-def _tweak_mobilenet(model, num_classes, use_gpu, freeze):
+def _tweak_mobilenet(model, num_classes, force_cpu, freeze):
     
     # update the final classifier
     fc = model.classifier[-1]
@@ -20,7 +20,7 @@ def _tweak_mobilenet(model, num_classes, use_gpu, freeze):
             p.requires_grad = False
 
     # move the model to the device
-    device = torch.device('cuda') if (use_gpu and torch.cuda.is_available()) else torch.device('cpu')
+    device = torch.device('cuda') if (torch.cuda.is_available() and not force_cpu) else torch.device('cpu')
     model = model.to(device)
 
     # set extra attributes on the model
@@ -30,26 +30,26 @@ def _tweak_mobilenet(model, num_classes, use_gpu, freeze):
     return model
 
 
-def mobilenet_v3_small(num_classes, *, pretrained=True, use_gpu=False, freeze=0):
+def mobilenet_v3_small(num_classes, *, pretrained=True, force_cpu=False, freeze=0):
     weights = None
     if pretrained:
         weights = torchvision.models.MobileNet_V3_Small_Weights.IMAGENET1K_V1
     
     model = torchvision.models.mobilenet_v3_small(weights=weights)
-    model = _tweak_mobilenet(model, num_classes, use_gpu, freeze)
+    model = _tweak_mobilenet(model, num_classes, force_cpu, freeze)
 
     model.fullname = "torchvision.models.mobilenet_v3_small"
 
     return model
 
 
-def mobilenet_v3_large(num_classes, *, pretrained=True, use_gpu=False, freeze=0):
+def mobilenet_v3_large(num_classes, *, pretrained=True, force_cpu=False, freeze=0):
     weights = None
     if pretrained:
         weights = torchvision.models.MobileNet_V3_Large_Weights.IMAGENET1K_V1
 
     model = torchvision.models.mobilenet_v3_large(weights=weights)
-    model = _tweak_mobilenet(model, num_classes, use_gpu, freeze)
+    model = _tweak_mobilenet(model, num_classes, force_cpu, freeze)
 
     model.fullname = "torchvision.models.mobilenet_v3_large"
 

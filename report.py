@@ -11,7 +11,7 @@ def build_pipeline(args):
     pipe = cl.augmenter(pipe, mode="val", mean=mean, std=std, size=args.image_size)
     pipe = cl.dataloader(pipe, num_workers=args.num_workers, batch_size=args.batch_size, drop_last=False)
     
-    model, epoch = models.load_model(args.state_file, use_gpu=args.use_gpu, pretrained=False, freeze=0)
+    model, epoch = models.load_model(args.state_file, force_cpu=args.force_cpu, pretrained=False, freeze=0)
     
     pipe = cl.validator(pipe, model)
     pipe = cl.assessor(pipe)
@@ -73,19 +73,14 @@ def main():
     import torch
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--use-cpu', help='use the CPU even if there is a GPU', action='store_true')
-    parser.add_argument('-w', '--num-workers', help='number of workers to use', type=int, default=-1)
+    parser.add_argument('-c', '--force-cpu', help='use the CPU even if there is a GPU', action='store_true')
+    parser.add_argument('-w', '--num-workers', help='number of workers to use', type=int, default=0)
     parser.add_argument('-b', '--batch-size', help='batch size', type=int, default=8)
     parser.add_argument('-s', '--image-size', help='resize the images before processing', type=int, default=32)
     parser.add_argument('state_file', help='the model state to load', type=str)
     parser.add_argument('dsroot', help='path to the cifar-10 or cifar-100 dataset', type=str)
     
     args = parser.parse_args()
-    
-    args.use_gpu = not args.use_cpu
-    
-    if args.num_workers == -1:
-        args.num_workers = 4 if args.use_gpu and torch.cuda.is_available() else 0
     
     # prepare the log dir
     now = datetime.now()
