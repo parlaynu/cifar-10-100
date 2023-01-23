@@ -82,10 +82,10 @@ def build_pipeline(args):
     pipe = head = cl.dataset(args.dsroot, split="train", batch_size=args.batch_size)
     mean, std = head.data_norm()
 
-    pipe = cl.augmenter(pipe, mode="train", mean=mean, std=std, size=args.image_size)
-    pipe = cl.dataloader(pipe, num_workers=args.num_workers, batch_size=args.batch_size, drop_last=True)
-        
     model = models.create_model(args.model, head.num_classes(), force_cpu=args.force_cpu, pretrained=True, freeze=args.freeze)
+    
+    pipe = cl.augmenter(pipe, mode="train", mean=mean, std=std, size=args.image_size)
+    pipe = cl.dataloader(pipe, device=model.device, batch_size=args.batch_size, num_workers=args.num_workers, drop_last=True)
     
     pipe = cl.trainer(pipe, model, label_smoothing=0.1, 
                         lr=args.initial_lr, weight_decay=0.01, 

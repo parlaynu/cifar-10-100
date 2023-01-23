@@ -8,10 +8,10 @@ def build_pipeline(args):
     pipe = head = cl.dataset(args.dsroot, split="val", batch_size=args.batch_size)
     mean, std = head.data_norm()
 
-    pipe = cl.augmenter(pipe, mode="val", mean=mean, std=std, size=args.image_size)
-    pipe = cl.dataloader(pipe, num_workers=args.num_workers, batch_size=args.batch_size, drop_last=False)
-    
     model, epoch = models.load_model(args.state_file, force_cpu=args.force_cpu, pretrained=False, freeze=0)
+
+    pipe = cl.augmenter(pipe, mode="val", mean=mean, std=std, size=args.image_size)
+    pipe = cl.dataloader(pipe, device=model.device, batch_size=args.batch_size, num_workers=args.num_workers, drop_last=False)
     
     pipe = cl.validator(pipe, model)
     pipe = cl.assessor(pipe)

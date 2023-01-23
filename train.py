@@ -8,13 +8,13 @@ def build_train_pipeline(args):
     pipe = head = cl.dataset(args.dsroot, split="train", batch_size=args.batch_size)
     mean, std = head.data_norm()
     
+    model = models.create_model(args.model, head.num_classes(), force_cpu=args.force_cpu, pretrained=True, freeze=args.freeze)
+
     if args.mx > 0.0:
         pipe = cl.mixup(pipe, num_classes=head.num_classes(), ratio=0.5, p=args.mx)
     
     pipe = cl.augmenter(pipe, mode="train", mean=mean, std=std, size=args.image_size)
-    pipe = cl.dataloader(pipe, num_workers=args.num_workers, batch_size=args.batch_size, drop_last=True)
-    
-    model = models.create_model(args.model, head.num_classes(), force_cpu=args.force_cpu, pretrained=True, freeze=args.freeze)
+    pipe = cl.dataloader(pipe, device=model.device, batch_size=args.batch_size, num_workers=args.num_workers, drop_last=True)
     
     pipe = cl.trainer(pipe, model, label_smoothing=args.ls, 
                 lr=args.lr, weight_decay=args.wd,
@@ -43,7 +43,7 @@ def build_vdate_pipeline(args, model, log_writer):
     mean, std = head.data_norm()
 
     pipe = cl.augmenter(pipe, mode="val", mean=mean, std=std, size=args.image_size)
-    pipe = cl.dataloader(pipe, num_workers=args.num_workers, batch_size=args.batch_size, drop_last=False)
+    pipe = cl.dataloader(pipe, device=model.device, batch_size=args.batch_size, num_workers=args.num_workers, drop_last=False)
     pipe = cl.validator(pipe, model)
     pipe = cl.assessor(pipe)
     pipe = cl.averager(pipe, keymap={"correct": "accuracy", "loss": "loss"})
