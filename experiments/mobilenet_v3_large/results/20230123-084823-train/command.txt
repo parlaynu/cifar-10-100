@@ -1,0 +1,1 @@
+./cifar-10/train.py -w 2 -e 75 -b 64 --lr 0.00005 mobilenet_v3_large /home/paul/Projects/datasets/cifar-10
